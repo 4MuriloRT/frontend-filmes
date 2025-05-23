@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
 import api from "../services/api";
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import { Filme } from "../types/Filme";
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdicionarFilme'>;
 
@@ -17,13 +18,20 @@ export default function AdicionarFilme({ navigation }: Props){
             return;
         }
         try{
-            await api.post('/filmes', {titulo, ano: parseInt(ano), diretor});
+            const response = await api.post<Filme>('/filmes', {
+                titulo, 
+                ano: parseInt(ano),
+                diretor
+            });
+            
             Alert.alert('Sucesso', 'Filme adicionado!');
-            return;
+
+            navigation.navigate('Home',{
+                novoFilme: response.data
+            });
         }catch(err){
             Alert.alert('Erro', 'Falha ao adicionar filme.');
         }
-        navigation.goBack();
     };
     
     return(

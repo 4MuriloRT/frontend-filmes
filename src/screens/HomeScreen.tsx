@@ -14,25 +14,30 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 
-export default function HomeScreen({ navigation }: Props){
+export default function HomeScreen({ navigation, route }: Props){
     const [filmes,setFilmes] = useState<Filme[]>([]);
     const [carregando, setCarregando] = useState(true);
 
     useEffect(()=>{
-        async function carregarFilmes(){
-            try{
-                const response = await api.get<Filme[]>('/filmes');
-                console.log( "Filmes carregados: ", response.data);
-                setFilmes(response.data);
-            } catch (err){
-                console.error('Erro ao buscar filmes: ',err);
-            }finally{
-                setCarregando(false);
-            }
-        }
-
         carregarFilmes();
-    }, []);
+
+        if(route.params?.novoFilme){
+            setFilmes(prevFilmes => [...prevFilmes, route.params.novoFilme]);
+        }
+        
+    }, [route.params]);
+
+    async function carregarFilmes(){
+        try{
+            const response = await api.get<Filme[]>('/filmes');
+            console.log( "Filmes carregados: ", response.data);
+            setFilmes(response.data);
+        } catch (err){
+            console.error('Erro ao buscar filmes: ',err);
+        }finally{
+            setCarregando(false);
+        }
+    }
 
     const deletarFilme = async (id: number) => {
     try {
